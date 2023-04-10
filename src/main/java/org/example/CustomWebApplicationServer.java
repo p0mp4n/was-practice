@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.calculate.domain.Calculator;
+import org.example.calculate.domain.PositiveNumber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,14 +37,16 @@ public class CustomWebApplicationServer {
                     BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
                     DataOutputStream dos = new DataOutputStream(out);
 
-                    // HTTP프로토콜의 생김새 파악
-                    String line;
-                    while((line = br.readLine()) != "") {
-                        System.out.println(line);
-                        // RequestLine -> TODO:스플릿을 통해 구현
-                        // Header
-                        // BlankLine
-                        // Body
+                    HttpRequest httpRequest = new HttpRequest(br);
+
+                    if(httpRequest.isGetRequest() && httpRequest.matchPattern("/calculate")) {
+                        QueryStrings queryStrings = httpRequest.getQueryStrings();
+
+                        int operand1 = Integer.parseInt(queryStrings.getValue("operand1"));
+                        String operator = queryStrings.getValue("operator");
+                        int operand2 = Integer.parseInt(queryStrings.getValue("operand2"));
+
+                        int result = Calculator.calculate(new PositiveNumber(operand1), operator, new PositiveNumber(operand2));
                     }
 
                 }
