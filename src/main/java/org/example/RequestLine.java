@@ -60,6 +60,4 @@ public class RequestLine {
         return Objects.hash(method, urlPath, queryStrings);
     }
 
-
-
 }

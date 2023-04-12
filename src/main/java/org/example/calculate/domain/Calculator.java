@@ -8,6 +8,11 @@ public class Calculator {
     private static final List<NewArithmeticOperator> arithmeticOperator = List.of(new AdditionOperator(), new SubtractionOperator(), new MultiplicationOperator(), new DivisionOperator());
 
     public static int calculate(PositiveNumber operand1, String operator, PositiveNumber operand2) {
+        try{
+            Thread.sleep(5_000L);
+        } catch(InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return arithmeticOperator.stream()
                 .filter(arithmeticOperator -> arithmeticOperator.supports(operator))
                 .map(arithmeticOperator -> arithmeticOperator.calculate(operand1, operand2))

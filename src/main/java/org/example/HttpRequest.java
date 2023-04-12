@@ -5,9 +5,13 @@ import org.example.RequestLine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.http.HttpHeaders;
 
 public class HttpRequest {
+    // protocol : 약속,규칙,규약
     private final RequestLine requestLine;
+    //private final HttpHeaders header;
+    //private final Body body;
 
     public HttpRequest(BufferedReader br) throws IOException {
         this.requestLine = new RequestLine(br.readLine());
