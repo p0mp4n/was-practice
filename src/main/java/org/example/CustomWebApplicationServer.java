@@ -26,33 +26,14 @@ public class CustomWebApplicationServer {
             Socket clientSocket;
             logger.info("[CustomWebApplicationServer] waiting for client.");
 
+            /**
+             * Step2 - 사용자 요청이 들어올 때마다 Thread를 새로 생성해서 사용자 요청을 처리하도록 한다.
+             * 문제점: Thread는 각 thread가 생성될때마다 스택메모리를 할당받는데, 이 메모리를 할당받는 작업은 큰 비용을 필요로 한다
+             * 그 결과, 최악의 경우 서버의 리소스가 감당하지 못하고 다운되어 버릴 수도 있다.
+             */
             while ((clientSocket = serverSocket.accept()) != null) {
                 logger.info("[CustomWebApplicationServer] client connected.");
-
-                /**
-                 * Step1. 사용자 요청을 메인 Thread가 처리하도록 한다.
-                 */
-                try (InputStream in = clientSocket.getInputStream(); OutputStream out = clientSocket.getOutputStream()) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-                    DataOutputStream dos = new DataOutputStream(out);
-
-                    HttpRequest httpRequest = new HttpRequest(br);
-
-                    if (httpRequest.isGetRequest() && httpRequest.matchPattern("/calculate")) {
-                        QueryStrings queryStrings = httpRequest.getQueryStrings();
-
-                        int operand1 = Integer.parseInt(queryStrings.getValue("operand1"));
-                        String operator = queryStrings.getValue("operator");
-                        int operand2 = Integer.parseInt(queryStrings.getValue("operand2"));
-
-                        int result = Calculator.calculate(new PositiveNumber(operand1), operator, new PositiveNumber(operand2));
-                        byte[] body = String.valueOf(result).getBytes();
-
-                        HttpResponse httpResponse = new HttpResponse(dos);
-                        httpResponse.response200Header("application/json", body.length);
-                        httpResponse.responseBody(body);
-                    }
-                }
+                new Thread(new ClientRequestHandler(clientSocket)).start();
             }
         }
     }
